@@ -1,0 +1,52 @@
+<!-- ... (previous content) -->
+<body>
+    <div>
+        <h2>Welcome, {{ username }}!</h2>
+        <button onclick="logout()">Logout</button>
+    </div>
+    <div>
+        <label for="room_input">Room:</label>
+        <input id="room_input" autocomplete="off">
+        <button onclick="joinRoom()">Join Room</button>
+        <button onclick="leaveRoom()">Leave Room</button>
+    </div>
+    <ul id="messages"></ul>
+    <input id="message_input" autocomplete="off">
+    <button onclick="sendMessage()">Send</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        function sendMessage() {
+            var messageInput = document.getElementById('message_input');
+            var message = messageInput.value;
+            socket.emit('message', message);
+            messageInput.value = '';
+        }
+
+        function joinRoom() {
+            var roomInput = document.getElementById('room_input');
+            var room = roomInput.value;
+            socket.emit('join', {'room': room});
+        }
+
+        function leaveRoom() {
+            var roomInput = document.getElementById('room_input');
+            var room = roomInput.value;
+            socket.emit('leave', {'room': room});
+        }
+
+        function logout() {
+            window.location.href = '/logout';
+        }
+
+        socket.on('message', function(data){
+            var ul = document.getElementById('messages');
+            var li = document.createElement('li');
+            li.appendChild(document.createTextNode(`${data.username}: ${data.msg}`));
+            ul.appendChild(li);
+        });
+    </script>
+</body>
+</html>
